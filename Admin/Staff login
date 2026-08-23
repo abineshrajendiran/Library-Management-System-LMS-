@@ -1,0 +1,83 @@
+import java.sql.*;
+import java.util.Scanner;
+
+public class StaffLogin {
+
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://localhost:3306/library_db";
+        String dbUser = "root";
+        String dbPassword = "yourpassword";
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("===== STAFF LOGIN =====");
+        System.out.print("Enter Username: ");
+        String username = sc.nextLine();
+
+        System.out.print("Enter Password: ");
+        String password = sc.nextLine();
+
+        try (Connection con = DriverManager.getConnection(url, dbUser, dbPassword)) {
+
+            String sql = "SELECT * FROM staff WHERE username = ? AND password = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, username);
+            ps.setString(2, password);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                System.out.println("\nLogin Successful!");
+                System.out.println("Welcome, " + rs.getString("staff_name"));
+                // proceed to staff menu here
+                staffMenu(con, sc);
+            } else {
+                System.out.println("\nInvalid username or password.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Simple menu after successful login
+    static void staffMenu(Connection con, Scanner sc) throws SQLException {
+        int choice;
+        do {
+            System.out.println("\n----- STAFF MENU -----");
+            System.out.println("1. View All Books");
+            System.out.println("2. Add Book");
+            System.out.println("3. Search Book");
+            System.out.println("4. Logout");
+            System.out.print("Enter choice: ");
+            choice = sc.nextInt();
+            sc.nextLine(); // consume newline
+
+            switch (choice) {
+                case 1 -> viewBooks(con);
+                case 2 -> System.out.println("(Call your AddBook class method here)");
+                case 3 -> System.out.println("(Call your Search method here)");
+                case 4 -> System.out.println("Logging out...");
+                default -> System.out.println("Invalid choice.");
+            }
+        } while (choice != 4);
+    }
+
+    static void viewBooks(Connection con) throws SQLException {
+        String sql = "SELECT title, type, available FROM books";
+        Statement st = con.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+
+        System.out.println("\n--- Book List ---");
+        while (rs.next()) {
+            System.out.println(rs.getString("title") + " | " +
+                                rs.getString("type") + " | " +
+                                (rs.getBoolean("available") ? "Available" : "Not Available"));
+        }
+    }
+}
+
+in SQL
+INSERT INTO staff (staff_name, username, password) VALUES ('Abinesh', 'admin', 'Abinesh@2005');
+
+
