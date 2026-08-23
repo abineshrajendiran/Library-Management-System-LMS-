@@ -1,0 +1,86 @@
+import java.sql.*;
+import java.util.Scanner;
+
+public class MemberLogin {
+
+    public static void main(String[] args) {
+       Scanner sc = new Scanner(System.in);
+
+        System.out.println("===== MEMBER LOGIN =====");
+        System.out.print("Enter Username: ");
+        String username = sc.nextLine();
+
+        System.out.print("Enter Password: ");
+        String password = sc.nextLine();
+
+        try (Connection con = DriverManager.getConnection(url, dbUser, dbPassword)) {
+
+            String sql = "SELECT * FROM members WHERE username = ? AND password = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, username);
+            ps.setString(2, password);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                System.out.println("\nLogin Successful!");
+                System.out.println("Welcome, " + rs.getString("member_name"));
+                memberMenu(con, sc, rs.getInt("member_id"));
+            } else {
+                System.out.println("\nInvalid username or password.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void memberMenu(Connection con, Scanner sc, int memberId) throws SQLException {
+        int choice;
+        do {
+            System.out.println("\n----- MEMBER MENU -----");
+            System.out.println("1. View Available Books");
+            System.out.println("2. Search Book");
+            System.out.println("3. My Borrowed Books");
+            System.out.println("4. Logout");
+            System.out.print("Enter choice: ");
+            choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+                case 1 -> viewAvailableBooks(con);
+                case 2 -> System.out.println("(Call Search method here)");
+                case 3 -> viewBorrowedBooks(con, memberId);
+                case 4 -> System.out.println("Logging out...");
+                default -> System.out.println("Invalid choice.");
+            }
+        } while (choice != 4);
+    }
+
+    static void viewAvailableBooks(Connection con) throws SQLException {
+        String sql = "SELECT title, type FROM books WHERE available = true";
+        Statement st = con.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+
+        System.out.println("\n--- Available Books ---");
+        while (rs.next()) {
+            System.out.println(rs.getString("title") + " | " + rs.getString("type"));
+        }
+    }
+
+    static void viewBorrowedBooks(Connection con, int memberId) throws SQLException {
+        String sql = "SELECT b.title FROM books b JOIN borrow_records r ON b.book_id = r.book_id " +
+                     "WHERE r.member_id = ? AND r.return_date IS NULL";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setInt(1, memberId);
+        ResultSet rs = ps.executeQuery();
+
+        System.out.println("\n--- Your Borrowed Books ---");
+        boolean any = false;
+        while (rs.next()) {
+            System.out.println(rs.getString("title"));
+            any = true;
+        }
+        if (!any) System.out.println("No books currently borrowed.");
+    }
+}
