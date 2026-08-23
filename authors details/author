@@ -1,0 +1,97 @@
+mport java.sql.*;
+
+public class AuthorBookSeeder {
+
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://localhost:3306/library_db";
+        String user = "Abinesh";
+        String password = "Abinesh@2005";
+
+        // 30 Authors with real names
+        String[] authors = {
+            "R.K. Narayan", "Kalki Krishnamurthy", "Jeyamohan", "Sujatha",
+            "Sivasankari", "Balakumaran", "Indira Parthasarathy", "Ashokamitran",
+            "Vaasanthi", "Chandra Mudgal", "Ruskin Bond", "Vikram Seth",
+            "Arundhati Roy", "Chetan Bhagat", "Amish Tripathi", "Devdutt Pattanaik",
+            "Khushwant Singh", "Jhumpa Lahiri", "Kiran Desai", "Salman Rushdie",
+            "Munshi Premchand", "Sarat Chandra Chattopadhyay", "Rabindranath Tagore",
+            "Mahasweta Devi", "Perumal Murugan", "Bharathiyar", "Kamban",
+            "Sundara Ramaswamy", "Ki. Rajanarayanan", "Ashwin Sanghi","Valmiki", "Veda Vyasa" 
+        };
+
+        // Each author's works: {title, type}  -> type = Book / Article / Journal
+        String[][][] works = {
+            { {"Malgudi Days", "Book"}, {"The Guide", "Book"} },
+            { {"Ponniyin Selvan", "Book"}, {"Sivakamiyin Sabatham", "Book"} },
+            { {"Vishnupuram", "Book"}, {"Aram", "Article"} },
+            { {"Kadal Pura", "Book"}, {"Priya", "Book"} },
+            { {"Oru Manidhanin Kadhai", "Book"}, {"Penn Kural", "Journal"} },
+            { {"Athira", "Book"}, {"Vellai Mozhi", "Article"} },
+            { {"Kurundhogai", "Journal"}, {"Nadai Payanam", "Article"} },
+            { {"18 vadhu Adhaksham", "Book"}, {"Otran", "Book"} },
+            { {"Andha Naal", "Article"}, {"Vaasanthi Kadhaigal", "Book"} },
+            { {"Modern Reflections", "Journal"}, {"City Life", "Article"} },
+            { {"The Blue Umbrella", "Book"}, {"Rusty Runs Away", "Book"} },
+            { {"A Suitable Boy", "Book"}, {"An Equal Music", "Book"} },
+            { {"The God of Small Things", "Book"}, {"Walking with Comrades", "Article"} },
+            { {"Five Point Someone", "Book"}, {"Half Girlfriend", "Book"} },
+            { {"The Immortals of Meluha", "Book"}, {"Sita", "Book"} },
+            { {"Myth = Mithya", "Book"}, {"The Pregnant King", "Book"} },
+            { {"Train to Pakistan", "Book"}, {"Delhi", "Book"} },
+            { {"The Namesake", "Book"}, {"Interpreter of Maladies", "Book"} },
+            { {"The Inheritance of Loss", "Book"}, {"Hullabaloo in the Guava Orchard", "Book"} },
+            { {"Midnight's Children", "Book"}, {"Shalimar the Clown", "Book"} },
+            { {"Godaan", "Book"}, {"Nirmala", "Book"} },
+            { {"Devdas", "Book"}, {"Parineeta", "Book"} },
+            { {"Gitanjali", "Book"}, {"Kabuliwala", "Article"} },
+            { {"Hazaar Chaurasi Ki Maa", "Book"}, {"Rudali", "Article"} },
+            { {"Mathorubagan", "Book"}, {"Poonachi", "Book"} },
+            { {"Kannan Pattu", "Journal"}, {"Panchali Sabatham", "Book"} },
+            { {"Kambaramayanam", "Book"}, {"Erezhu Padalam", "Books"} },
+            { {"Oru Puliyamarathin Kathai", "Book"}, {"JJ Sila Kurippugal", "Book"} },
+            { {"Gopallapuram", "Book"}, {"Krishnan Vadhai", "Journal"} },
+            { {"Chanakya's Chant", "Book"}, {"The Rozabal Line", "Book"} }
+          { {"Chanakya's Chant", "Book"}, {"The Rozabal Line", "Book"} },  
+           { {"Ramayanam", "Book"} , {"Valmiki's","Book"} },      
+         { {"Mahabharatham", "Book", {"Vyasa's ",Books} }     
+};
+        };
+
+        try (Connection con = DriverManager.getConnection(url, user, password)) {
+            con.setAutoCommit(false);
+
+            // Insert authors
+            String authorSQL = "INSERT INTO authors (author_id, name) VALUES (?, ?)";
+            PreparedStatement authorStmt = con.prepareStatement(authorSQL);
+            for (int i = 0; i < authors.length; i++) {
+                authorStmt.setInt(1, i + 1);
+                authorStmt.setString(2, authors[i]);
+                authorStmt.addBatch();
+            }
+            authorStmt.executeBatch();
+            System.out.println(authors.length + " authors inserted.");
+
+            // Insert their works (books/articles/journals)
+            String bookSQL = "INSERT INTO books (title, author_id, type, available) VALUES (?, ?, ?, ?)";
+            PreparedStatement bookStmt = con.prepareStatement(bookSQL);
+
+            int bookCount = 0;
+            for (int i = 0; i < works.length; i++) {
+                for (String[] work : works[i]) {
+                    bookStmt.setString(1, work[0]);       // title
+                    bookStmt.setInt(2, i + 1);            // author_id
+                    bookStmt.setString(3, work[1]);       // type
+                    bookStmt.setBoolean(4, true);
+                    bookStmt.addBatch();
+                    bookCount++;
+                }
+            }
+            bookStmt.executeBatch();
+            con.commit();
+            System.out.println(bookCount + " books/articles inserted.");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
