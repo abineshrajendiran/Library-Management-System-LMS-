@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===================== LOGIN ===================== -->
+  <section id="loginView" class="login-wrap">
+    <form id="loginForm" class="card login-card" autocomplete="off">
+      <h1>&#128218; Library Management</h1>
+      <p class="muted">Login to issue and return books</p>
+
+      <div class="role-switch">
+        <label><input type="radio" name="role" value="staff" checked> Staff</label>
+        <label><input type="radio" name="role" value="member"> Student</label>
+      </div>
+
+      <label for="username">Username</label>
+      <input type="text" id="username" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" required>
+
+      <button type="submit" class="btn primary full">Login</button>
+      <div id="loginMsg" class="msg"></div>
+
+      <p class="hint">
+        Demo &mdash; Staff: <b>admin</b> / <b>admin123</b><br>
+        Student: <b>abi</b> / <b>member123</b>
+      </p>
+    </form>
+  </section>
+
+  <!-- ===================== APP ===================== -->
+  <section id="appView" class="hidden">
+    <header class="topbar">
+      <div class="brand">&#128218; Library Management System</div>
+      <div class="who">
+        <span id="whoName"></span>
+        <span id="whoRole" class="badge"></span>
+        <button id="logoutBtn" class="btn small">Logout</button>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="books">Books</button>
+      <button class="tab" data-tab="records" id="recordsTabBtn">Issue Records</button>
+      <button class="tab staff-only" data-tab="members">Students</button>
+    </nav>
+
+    <main class="container">
+      <div id="appMsg" class="msg"></div>
+
+      <!-- ---------- BOOKS ---------- -->
+      <div id="tab-books" class="tab-panel">
+        <div class="card">
+          <div class="toolbar">
+            <input type="text" id="bookSearch" placeholder="Search by book / author / category">
+            <div class="staff-only inline">
+              <label for="issueMember">Issue to:</label>
+              <select id="issueMember"></select>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Book</th><th>Author</th><th>Category</th><th>Available</th><th></th></tr>
+              </thead>
+              <tbody id="bookTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <details class="card staff-only">
+          <summary>+ Add a new book</summary>
+          <form id="addBookForm" class="grid-form">
+            <input type="text" id="nbTitle" placeholder="Title" required>
+            <input type="text" id="nbAuthor" placeholder="Author" required>
+            <input type="text" id="nbCategory" placeholder="Category" required>
+            <input type="number" id="nbCopies" placeholder="Copies" min="1" max="100" value="1" required>
+            <button class="btn primary" type="submit">Add Book</button>
+          </form>
+        </details>
+      </div>
+
+      <!-- ---------- RECORDS ---------- -->
+      <div id="tab-records" class="tab-panel hidden">
+        <div class="card">
+          <div class="toolbar">
+            <div class="inline">
+              <label for="statusFilter">Show:</label>
+              <select id="statusFilter">
+                <option value="ALL">All records</option>
+                <option value="ISSUED">Currently issued</option>
+                <option value="RETURNED">Returned</option>
+              </select>
+            </div>
+            <div class="staff-only inline">
+              <label for="daysKept">Demo: pretend days kept</label>
+              <input type="number" id="daysKept" min="0" max="3650" placeholder="optional">
+            </div>
+          </div>
+          <p class="note">Fine = Rs. 2 per day after 7 days. Every issue and return is saved in the
+            <code>issue_records</code> table.</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>Book</th><th class="staff-only">Student</th><th>Issued</th><th>Due</th>
+                  <th>Returned</th><th>Days</th><th>Fine (Rs.)</th><th>Status</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="recordTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- MEMBERS ---------- -->
+      <div id="tab-members" class="tab-panel hidden">
+        <div class="card">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Name</th><th>Username</th><th>Email</th><th>Dept</th><th>Books held</th></tr>
+              </thead>
+              <tbody id="memberTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <details class="card">
+          <summary>+ Add a new student</summary>
+          <form id="addMemberForm" class="grid-form">
+            <input type="text" id="nmName" placeholder="Full name" required>
+            <input type="text" id="nmUser" placeholder="Username" required>
+            <input type="password" id="nmPass" placeholder="Password (min 4)" required>
+            <input type="email" id="nmEmail" placeholder="Email">
+            <input type="text" id="nmDept" placeholder="Department">
+            <button class="btn primary" type="submit">Add Student</button>
+          </form>
+        </details>
+      </div>
+    </main>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
